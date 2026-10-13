@@ -37,11 +37,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int PANEL = Color.rgb(29,31,38);
     private static final int MUTED = Color.rgb(164,168,180);
     private static final int ACCENT = Color.rgb(65,145,255);
-    private LinearLayout list, tabs;
+    private LinearLayout list;
     private EditText search;
-    private TextView videoTab, folderTab, countLabel;
+    private TextView countLabel;
     private final ArrayList<VideoItem> videos = new ArrayList<>();
-    private String mode = "videos";
     private String folderFilter = null;
 
     private static class VideoItem {
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         search.setTextSize(14);
         search.setTextColor(Color.WHITE);
         search.setHintTextColor(MUTED);
-        search.setHint("Search videos and folders");
+        search.setHint("Search folders and videos");
         search.setBackgroundColor(Color.TRANSPARENT);
         search.setPadding(dp(8),dp(10),dp(4),dp(10));
         search.addTextChangedListener(new android.text.TextWatcher() {
@@ -109,16 +108,6 @@ public class MainActivity extends AppCompatActivity {
         root.addView(searchBox,new LinearLayout.LayoutParams(-1,-2));
         LinearLayout.LayoutParams sp = (LinearLayout.LayoutParams)searchBox.getLayoutParams();
         sp.topMargin=dp(16); sp.bottomMargin=dp(14); searchBox.setLayoutParams(sp);
-
-        tabs = new LinearLayout(this);
-        tabs.setOrientation(LinearLayout.HORIZONTAL);
-        videoTab = tab("Videos",true);
-        folderTab = tab("Folders",false);
-        videoTab.setOnClickListener(v -> { mode="videos"; folderFilter=null; updateTabs(); renderList(); });
-        folderTab.setOnClickListener(v -> { mode="folders"; folderFilter=null; updateTabs(); renderList(); });
-        tabs.addView(videoTab,new LinearLayout.LayoutParams(0,dp(42),1));
-        tabs.addView(folderTab,new LinearLayout.LayoutParams(0,dp(42),1));
-        root.addView(tabs);
 
         LinearLayout heading = new LinearLayout(this);
         heading.setGravity(Gravity.CENTER_VERTICAL);
@@ -141,20 +130,6 @@ public class MainActivity extends AppCompatActivity {
         footer.setPadding(0,dp(8),0,dp(12));
         root.addView(footer);
         setContentView(root);
-    }
-
-    private TextView tab(String label, boolean active) {
-        TextView t=text(label,14,active?Color.WHITE:MUTED,true);
-        t.setGravity(Gravity.CENTER);
-        t.setBackground(round(active?0xFF283C58:PANEL,dp(10)));
-        return t;
-    }
-
-    private void updateTabs() {
-        videoTab.setTextColor(mode.equals("videos")?Color.WHITE:MUTED);
-        videoTab.setBackground(round(mode.equals("videos")?0xFF283C58:PANEL,dp(10)));
-        folderTab.setTextColor(mode.equals("folders")?Color.WHITE:MUTED);
-        folderTab.setBackground(round(mode.equals("folders")?0xFF283C58:PANEL,dp(10)));
     }
 
     private TextView text(String value,float size,int color,boolean bold) {
@@ -199,7 +174,9 @@ public class MainActivity extends AppCompatActivity {
         if(list==null)return;
         list.removeAllViews();
         String q=search==null?"":search.getText().toString().trim().toLowerCase(Locale.ROOT);
-        if(mode.equals("folders")) {
+
+        // Main screen shows folders only. Opening a folder shows the videos inside it.
+        if(folderFilter==null) {
             Map<String,ArrayList<VideoItem>> folders=new LinkedHashMap<>();
             for(VideoItem item:videos) if(item.folder.toLowerCase(Locale.ROOT).contains(q))
                 folders.computeIfAbsent(item.folder,k->new ArrayList<>()).add(item);
@@ -214,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 details.addView(text(e.getValue().size()+" videos",12,MUTED,false));
                 row.addView(details,new LinearLayout.LayoutParams(0,-2,1));
                 TextView arrow=text("›",28,MUTED,false); row.addView(arrow);
-                row.setOnClickListener(v->{folderFilter=e.getKey();mode="videos";updateTabs();renderList();});
+                row.setOnClickListener(v->{folderFilter=e.getKey();renderList();});
                 addSpacedRow(row);
             }
             return;
@@ -222,16 +199,14 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<VideoItem> filtered=new ArrayList<>();
         for(VideoItem item:videos) {
-            boolean matches=item.name.toLowerCase(Locale.ROOT).contains(q)||item.folder.toLowerCase(Locale.ROOT).contains(q);
-            if(matches&&(folderFilter==null||folderFilter.equals(item.folder)))filtered.add(item);
+            boolean matches=item.name.toLowerCase(Locale.ROOT).contains(q);
+            if(matches&&folderFilter.equals(item.folder))filtered.add(item);
         }
         countLabel.setText(filtered.size()+" videos");
-        if(folderFilter!=null) {
-            TextView back=text("‹  All videos     "+folderFilter,13,ACCENT,true);
-            back.setPadding(dp(4),dp(8),0,dp(12));
-            back.setOnClickListener(v->{folderFilter=null;renderList();});
-            list.addView(back);
-        }
+        TextView back=text("‹  All folders     "+folderFilter,13,ACCENT,true);
+        back.setPadding(dp(4),dp(8),0,dp(12));
+        back.setOnClickListener(v->{folderFilter=null;renderList();});
+        list.addView(back);
         if(filtered.isEmpty()){showMessage("No videos found");return;}
         for(VideoItem item:filtered) {
             LinearLayout row=new LinearLayout(this); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(dp(8),dp(8),dp(8),dp(8));
