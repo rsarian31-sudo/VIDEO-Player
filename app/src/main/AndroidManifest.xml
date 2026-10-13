@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-    <application android:allowBackup="false" android:label="Wajid Video Player" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
+    <application android:allowBackup="false" android:label="Wajid Player" android:icon="@drawable/ic_wajid_player" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
         <activity android:name=".PrivatePlayerActivity" android:exported="false" />
         <activity android:name=".PrivateActivity" android:exported="false" />
         <activity android:name=".PlayerActivity" android:screenOrientation="sensor" android:configChanges="orientation|screenSize|keyboardHidden" android:exported="false" />
