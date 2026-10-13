@@ -3,7 +3,6 @@ package com.wajid.videoplayer;
 import android.Manifest;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage("Open the official update page to get the latest version. Android will ask you to confirm installation.")
                 .setNegativeButton("Cancel", (d,w) -> d.dismiss())
                 .setPositiveButton("Check updates", (d,w) -> {
-                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/rsarian31-sudo/VIDEO-Player/releases/latest"));
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/rsarian31-sudo/VIDEO-Player/releases/tag/mobile-latest"));
                     startActivity(i);
                 }).show();
         });
