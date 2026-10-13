@@ -5,7 +5,7 @@
     <application android:allowBackup="false" android:label="Wajid Video Player" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
         <activity android:name=".PrivatePlayerActivity" android:exported="false" />
         <activity android:name=".PrivateActivity" android:exported="false" />
-        <activity android:name=".PlayerActivity" android:screenOrientation="sensor" android:exported="false" />
+        <activity android:name=".PlayerActivity" android:screenOrientation="sensor" android:configChanges="orientation|screenSize|keyboardHidden" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
