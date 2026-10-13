@@ -3,6 +3,7 @@ package com.wajid.videoplayer;
 import android.Manifest;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -79,10 +80,26 @@ public class MainActivity extends AppCompatActivity {
         brand.addView(title); brand.addView(subtitle);
         top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
 
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.VERTICAL);
+        Button updateBtn = makeButton("↻ Update");
+        updateBtn.setTextSize(11);
+        updateBtn.setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("WAJID PLAYER Update")
+                .setMessage("Open the official update page to get the latest version. Android will ask you to confirm installation.")
+                .setNegativeButton("Cancel", (d,w) -> d.dismiss())
+                .setPositiveButton("Check updates", (d,w) -> {
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/rsarian31-sudo/VIDEO-Player/releases/latest"));
+                    startActivity(i);
+                }).show();
+        });
+        actions.addView(updateBtn);
         Button privateBtn = makeButton("🔒 Private");
-        privateBtn.setTextSize(12);
+        privateBtn.setTextSize(11);
         privateBtn.setOnClickListener(v -> startActivity(new Intent(this,PrivateActivity.class)));
-        top.addView(privateBtn);
+        actions.addView(privateBtn);
+        top.addView(actions);
         root.addView(top);
 
         LinearLayout searchBox = new LinearLayout(this);
