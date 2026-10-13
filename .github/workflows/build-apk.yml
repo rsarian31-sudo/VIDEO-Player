@@ -9,6 +9,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+      SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -31,20 +34,20 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Decode persistent signing key
-        if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEYSTORE_PASSWORD != '' }}
+        if: ${{ env.SIGNING_KEYSTORE_BASE64 != '' && env.SIGNING_KEYSTORE_PASSWORD != '' }}
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
         run: |
           echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/wajid-player-release.jks"
       - name: Build signed release APK
-        if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEYSTORE_PASSWORD != '' }}
+        if: ${{ env.SIGNING_KEYSTORE_BASE64 != '' && env.SIGNING_KEYSTORE_PASSWORD != '' }}
         env:
           SIGNING_KEYSTORE_PATH: ${{ runner.temp }}/wajid-player-release.jks
           SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
           SIGNING_KEY_ALIAS: wajidplayer
         run: gradle --no-daemon assembleRelease
       - name: Upload signed release APK
-        if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEYSTORE_PASSWORD != '' }}
+        if: ${{ env.SIGNING_KEYSTORE_BASE64 != '' && env.SIGNING_KEYSTORE_PASSWORD != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: WajidVideoPlayer-signed-release-apk
@@ -52,7 +55,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Publish signed APK for in-app updates
-        if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEYSTORE_PASSWORD != '' }}
+        if: ${{ env.SIGNING_KEYSTORE_BASE64 != '' && env.SIGNING_KEYSTORE_PASSWORD != '' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: mobile-latest
