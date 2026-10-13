@@ -147,9 +147,9 @@ public class PlayerActivity extends AppCompatActivity {
             controlsVisible = false;
         });
         buttons.addView(lock, new LinearLayout.LayoutParams(0, dp(56), 1));
-        TextView back10 = textButton("↶\n10", 22);
-        back10.setOnClickListener(v -> seekBy(-10000));
-        buttons.addView(back10, new LinearLayout.LayoutParams(0, dp(56), 1));
+        TextView previousVideo = textButton("⏮", 25);
+        previousVideo.setOnClickListener(v -> { if (player != null && player.hasPreviousMediaItem()) player.seekToPreviousMediaItem(); });
+        buttons.addView(previousVideo, new LinearLayout.LayoutParams(0, dp(56), 1));
         TextView play = textButton("▶", 28);
         play.setTag("play");
         play.setOnClickListener(v -> {
@@ -159,9 +159,9 @@ public class PlayerActivity extends AppCompatActivity {
             scheduleHide();
         });
         buttons.addView(play, new LinearLayout.LayoutParams(0, dp(56), 1));
-        TextView forward10 = textButton("10\n↷", 22);
-        forward10.setOnClickListener(v -> seekBy(10000));
-        buttons.addView(forward10, new LinearLayout.LayoutParams(0, dp(56), 1));
+        TextView nextVideo = textButton("⏭", 25);
+        nextVideo.setOnClickListener(v -> { if (player != null && player.hasNextMediaItem()) player.seekToNextMediaItem(); });
+        buttons.addView(nextVideo, new LinearLayout.LayoutParams(0, dp(56), 1));
         TextView speedButtonText = textButton("1×", 19);
         speedButtonText.setOnClickListener(v -> showSpeedPanel());
         buttons.addView(speedButtonText, new LinearLayout.LayoutParams(0, dp(56), 1));
