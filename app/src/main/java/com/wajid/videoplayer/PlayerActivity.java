@@ -77,11 +77,29 @@ public class PlayerActivity extends AppCompatActivity {
                 updatePlayButton();
             }
         });
-        Uri uri = getIntent().getData();
-        if (uri != null) {
-            player.setMediaItem(MediaItem.fromUri(uri));
+        java.util.ArrayList<Uri> playlistUris = getIntent().getParcelableArrayListExtra("playlist_uris");
+        java.util.ArrayList<String> playlistTitles = getIntent().getStringArrayListExtra("playlist_titles");
+        int startIndex = getIntent().getIntExtra("playlist_index", 0);
+        if (playlistUris != null && !playlistUris.isEmpty()) {
+            java.util.ArrayList<MediaItem> items = new java.util.ArrayList<>();
+            for (int i = 0; i < playlistUris.size(); i++) {
+                MediaItem.Builder builder = new MediaItem.Builder().setUri(playlistUris.get(i));
+                if (playlistTitles != null && i < playlistTitles.size()) {
+                    builder.setMediaMetadata(new androidx.media3.common.MediaMetadata.Builder().setTitle(playlistTitles.get(i)).build());
+                }
+                items.add(builder.build());
+            }
+            startIndex = Math.max(0, Math.min(startIndex, items.size() - 1));
+            player.setMediaItems(items, startIndex, 0);
             player.prepare();
             player.play();
+        } else {
+            Uri uri = getIntent().getData();
+            if (uri != null) {
+                player.setMediaItem(MediaItem.fromUri(uri));
+                player.prepare();
+                player.play();
+            }
         }
         handler.post(progressUpdate);
         scheduleHide();
