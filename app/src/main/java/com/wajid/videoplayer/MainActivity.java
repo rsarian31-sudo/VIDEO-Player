@@ -239,7 +239,10 @@ public class MainActivity extends AppCompatActivity {
             TextView meta=text(item.folder+"  •  "+item.duration,11,MUTED,false); meta.setPadding(0,dp(5),0,0); details.addView(meta);
             row.addView(details,new LinearLayout.LayoutParams(0,-2,1));
             TextView more=text("⋮",24,MUTED,true); more.setPadding(dp(8),0,dp(2),0); row.addView(more);
-            row.setOnClickListener(v->{Intent i=new Intent(this,PlayerActivity.class);i.setData(item.uri);i.putExtra("title",item.name);\n                ArrayList<Uri> playlistUris=new ArrayList<>(); ArrayList<String> playlistTitles=new ArrayList<>(); int startIndex=0;\n                for(int idx=0;idx<filtered.size();idx++){VideoItem video=filtered.get(idx);playlistUris.add(video.uri);playlistTitles.add(video.name);if(video.uri.equals(item.uri))startIndex=idx;}\n                i.putParcelableArrayListExtra("playlist_uris",playlistUris);i.putStringArrayListExtra("playlist_titles",playlistTitles);i.putExtra("playlist_index",startIndex);startActivity(i);});
+            row.setOnClickListener(v->{Intent i=new Intent(this,PlayerActivity.class);i.setData(item.uri);i.putExtra("title",item.name);
+                ArrayList<Uri> playlistUris=new ArrayList<>(); ArrayList<String> playlistTitles=new ArrayList<>(); int startIndex=0;
+                for(int idx=0;idx<filtered.size();idx++){VideoItem video=filtered.get(idx);playlistUris.add(video.uri);playlistTitles.add(video.name);if(video.uri.equals(item.uri))startIndex=idx;}
+                i.putParcelableArrayListExtra("playlist_uris",playlistUris);i.putStringArrayListExtra("playlist_titles",playlistTitles);i.putExtra("playlist_index",startIndex);startActivity(i);});
             addSpacedRow(row);
         }
     }
