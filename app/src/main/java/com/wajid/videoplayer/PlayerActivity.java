@@ -162,9 +162,9 @@ public class PlayerActivity extends AppCompatActivity {
         TextView forward10 = textButton("10\n↷", 22);
         forward10.setOnClickListener(v -> seekBy(10000));
         buttons.addView(forward10, new LinearLayout.LayoutParams(0, dp(56), 1));
-        TextView speed = textButton("1×", 19);
-        speed.setOnClickListener(v -> showSpeedPanel());
-        buttons.addView(speed, new LinearLayout.LayoutParams(0, dp(56), 1));
+        TextView speedButtonText = textButton("1×", 19);
+        speedButtonText.setOnClickListener(v -> showSpeedPanel());
+        buttons.addView(speedButtonText, new LinearLayout.LayoutParams(0, dp(56), 1));
         bottomPanel.addView(buttons);
 
         speedPanel = new LinearLayout(this);
