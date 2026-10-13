@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         privateBtn.setTextSize(11);
         privateBtn.setOnClickListener(v -> startActivity(new Intent(this,PrivateActivity.class)));
         actions.addView(privateBtn);
+        actions.setVisibility(View.GONE);
         top.addView(actions);
         root.addView(top);
 
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(android.text.Editable e) {}
         });
         searchBox.addView(search,new LinearLayout.LayoutParams(0,-2,1));
+        searchBox.setVisibility(View.GONE);
         root.addView(searchBox,new LinearLayout.LayoutParams(-1,-2));
         LinearLayout.LayoutParams sp = (LinearLayout.LayoutParams)searchBox.getLayoutParams();
         sp.topMargin=dp(16); sp.bottomMargin=dp(14); searchBox.setLayoutParams(sp);
@@ -154,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         TextView footer = text("Local videos • Private folder",10,MUTED,false);
         footer.setGravity(Gravity.CENTER);
         footer.setPadding(0,dp(8),0,dp(12));
+        footer.setVisibility(View.GONE);
         root.addView(footer);
         setContentView(root);
     }
