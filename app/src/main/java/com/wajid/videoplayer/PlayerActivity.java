@@ -225,7 +225,7 @@ public class PlayerActivity extends AppCompatActivity {
                 }
                 if (swiping && player != null) {
                     long duration = player.getDuration();
-                    long seekDelta = (long) ((downX - x) / Math.max(1f, playerView.getWidth()) * 120000L);
+                    long seekDelta = (long) ((x - downX) / Math.max(1f, playerView.getWidth()) * 120000L);
                     long target = Math.max(0, swipeStartPosition + seekDelta);
                     if (duration > 0) target = Math.min(duration, target);
                     seekHint.setText((seekDelta >= 0 ? "⏩  " : "⏪  ") + formatTime(target));
@@ -237,7 +237,7 @@ public class PlayerActivity extends AppCompatActivity {
             case MotionEvent.ACTION_CANCEL:
                 if (swiping && player != null) {
                     long duration = player.getDuration();
-                    long seekDelta = (long) ((downX - x) / Math.max(1f, playerView.getWidth()) * 120000L);
+                    long seekDelta = (long) ((x - downX) / Math.max(1f, playerView.getWidth()) * 120000L);
                     long target = Math.max(0, swipeStartPosition + seekDelta);
                     if (duration > 0) target = Math.min(duration, target);
                     player.seekTo(target);
