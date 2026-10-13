@@ -61,6 +61,16 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
     }
 
+    @Override public void onBackPressed() {
+        if (folderFilter != null) {
+            folderFilter = null;
+            if (search != null) search.setText("");
+            renderList();
+            return;
+        }
+        super.onBackPressed();
+    }
+
     private void buildLayout() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
