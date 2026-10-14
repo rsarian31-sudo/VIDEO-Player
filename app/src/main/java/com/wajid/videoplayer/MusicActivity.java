@@ -3,6 +3,7 @@ package com.wajid.videoplayer;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -101,10 +102,47 @@ public class MusicActivity extends AppCompatActivity {
             TextView back=text("‹  All music folders",14,ACCENT,true);back.setPadding(0,dp(8),0,dp(12));back.setOnClickListener(v->{folderFilter=null;render();});list.addView(back);
             for(int i=0;i<filtered.size();i++){final int index=i;final ArrayList<Song> playlist=new ArrayList<>(filtered);Song s=filtered.get(i);
                 LinearLayout row=row();row.addView(text("♫",24,ACCENT,true),new LinearLayout.LayoutParams(dp(44),dp(44)));
-                LinearLayout details=column();TextView name=text(s.name,14,Color.WHITE,true);name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);details.addView(name);details.addView(text(time(s.duration),11,MUTED,false));row.addView(details,new LinearLayout.LayoutParams(0,-2,1));row.addView(text("▶",18,ACCENT,true));row.setOnClickListener(v->connectAndPlay(playlist,index));addRow(row);
+                LinearLayout details=column();TextView name=text(s.name,14,Color.WHITE,true);name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);details.addView(name);details.addView(text(time(s.duration),11,MUTED,false));row.addView(details,new LinearLayout.LayoutParams(0,-2,1));row.addView(text("▶",18,ACCENT,true));TextView more=text("⋮",22,MUTED,true);more.setPadding(dp(10),0,0,0);row.addView(more);more.setOnClickListener(v->confirmDeleteSong(s));row.setOnClickListener(v->connectAndPlay(playlist,index));addRow(row);
             }
         }
     }
+    private void confirmDeleteSong(Song song) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete audio?")
+            .setMessage("Delete \"" + song.name + "\" from your phone? This cannot be undone.")
+            .setNegativeButton("Cancel", (d,w) -> d.dismiss())
+            .setPositiveButton("Delete", (d,w) -> deleteSong(song))
+            .show();
+    }
+
+    private void deleteSong(Song song) {
+        try {
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.app.PendingIntent request = MediaStore.createDeleteRequest(getContentResolver(), java.util.Collections.singletonList(song.uri));
+                startIntentSenderForResult(request.getIntentSender(), 4202, null, 0, 0, 0);
+            } else {
+                int deleted = getContentResolver().delete(song.uri, null, null);
+                if (deleted > 0) { loadSongs(); android.widget.Toast.makeText(this, "Audio deleted", android.widget.Toast.LENGTH_SHORT).show(); }
+                else android.widget.Toast.makeText(this, "Could not delete this audio", android.widget.Toast.LENGTH_LONG).show();
+            }
+        } catch (SecurityException e) {
+            if (Build.VERSION.SDK_INT >= 29 && e instanceof android.app.RecoverableSecurityException) {
+                try { startIntentSenderForResult(((android.app.RecoverableSecurityException)e).getUserAction().getActionIntent().getIntentSender(), 4202, null, 0, 0, 0); }
+                catch (Exception ignored) { android.widget.Toast.makeText(this, "Permission needed to delete this audio", android.widget.Toast.LENGTH_LONG).show(); }
+            } else android.widget.Toast.makeText(this, "Permission needed to delete this audio", android.widget.Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            android.widget.Toast.makeText(this, "Could not delete this audio", android.widget.Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 4202 && resultCode == RESULT_OK) {
+            loadSongs();
+            android.widget.Toast.makeText(this, "Audio deleted", android.widget.Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private LinearLayout row(){LinearLayout r=new LinearLayout(this);r.setGravity(Gravity.CENTER_VERTICAL);r.setPadding(dp(12),dp(10),dp(12),dp(10));r.setBackground(round(PANEL,dp(12)));return r;}
     private LinearLayout column(){LinearLayout l=new LinearLayout(this);l.setOrientation(LinearLayout.VERTICAL);l.setPadding(dp(12),0,dp(8),0);return l;}
     private void addRow(View v){LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.bottomMargin=dp(8);list.addView(v,p);}
