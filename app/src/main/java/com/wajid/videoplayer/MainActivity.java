@@ -26,6 +26,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -75,10 +77,16 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(16),dp(12),dp(16),0);
-        root.setBackgroundColor(BG);
+        root.setBackgroundColor(Color.BLACK);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
+            android.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
+            view.setPadding(dp(16), bars.top + dp(12), dp(16), bars.bottom);
+            return insets;
+        });
 
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
+        top.setPadding(0,dp(4),0,dp(10));
         top.setOrientation(LinearLayout.HORIZONTAL);
 
         LinearLayout brand = new LinearLayout(this);
@@ -216,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
             if(folders.isEmpty()){showMessage("No folders found");return;}
             for(Map.Entry<String,ArrayList<VideoItem>> e:folders.entrySet()) {
                 LinearLayout row=new LinearLayout(this); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(dp(12),dp(12),dp(12),dp(12));
-                row.setBackground(round(PANEL,dp(12)));
-                TextView icon=text("▰",30,ACCENT,true); icon.setGravity(Gravity.CENTER); row.addView(icon,new LinearLayout.LayoutParams(dp(52),dp(52)));
+                row.setBackgroundColor(Color.TRANSPARENT);
+                TextView icon=text("📁",38,Color.WHITE,false); icon.setGravity(Gravity.CENTER); row.addView(icon,new LinearLayout.LayoutParams(dp(68),dp(68)));
                 LinearLayout details=new LinearLayout(this); details.setOrientation(LinearLayout.VERTICAL); details.setPadding(dp(12),0,0,0);
                 details.addView(text(e.getKey(),15,Color.WHITE,true));
                 details.addView(text(e.getValue().size()+" videos",12,MUTED,false));
