@@ -63,18 +63,14 @@ public class MusicActivity extends AppCompatActivity {
         if(ContextCompat.checkSelfPermission(this,permission)==PackageManager.PERMISSION_GRANTED)loadSongs();else permissionLauncher.launch(permission);
     }
     private void connectAndPlay(ArrayList<Song> playlist,int index){
-        SessionToken token=new SessionToken(this,new ComponentName(this,MusicPlaybackService.class));
-        controllerFuture=new MediaController.Builder(this,token).buildAsync();
-        controllerFuture.addListener(()->{
-            try{
-                controller=controllerFuture.get();
-                ArrayList<MediaItem> items=new ArrayList<>();
-                for(Song s:playlist) items.add(new MediaItem.Builder().setUri(s.uri).setMediaMetadata(new MediaMetadata.Builder().setTitle(s.name).setArtist("WAJID MUSIC").build()).build());
-                controller.setMediaItems(items,Math.max(0,Math.min(index,items.size()-1)),0);
-                controller.prepare(); controller.play();
-                android.widget.Toast.makeText(this,"Playing: "+playlist.get(index).name,android.widget.Toast.LENGTH_SHORT).show();
-            }catch(Exception e){message("Could not start audio playback.");}
-        },ContextCompat.getMainExecutor(this));
+        Intent intent=new Intent(this,MusicPlayerActivity.class);
+        ArrayList<Uri> uris=new ArrayList<>();
+        ArrayList<String> titles=new ArrayList<>();
+        for(Song song:playlist){uris.add(song.uri);titles.add(song.name);}
+        intent.putParcelableArrayListExtra("music_uris",uris);
+        intent.putStringArrayListExtra("music_titles",titles);
+        intent.putExtra("music_index",index);
+        startActivity(intent);
     }
     private void loadSongs(){
         songs.clear(); Uri collection=MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
