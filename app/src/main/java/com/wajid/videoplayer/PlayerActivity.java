@@ -17,12 +17,14 @@ import android.widget.TextView;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
+import androidx.media3.ui.TrackSelectionDialogBuilder;
 import java.util.Locale;
 
 public class PlayerActivity extends AppCompatActivity {
@@ -33,6 +35,8 @@ public class PlayerActivity extends AppCompatActivity {
     private LinearLayout topBar, bottomPanel, speedPanel;
     private FrameLayout root;
     private float speed = 1f;
+    private boolean shuffleEnabled = false;
+    private int repeatMode = Player.REPEAT_MODE_OFF;
     private boolean controlsVisible = true;
     private boolean userSeeking = false;
     private float downX, downY, lastX;
@@ -122,7 +126,7 @@ public class PlayerActivity extends AppCompatActivity {
         titleView.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
         topBar.addView(titleView, new LinearLayout.LayoutParams(0, -2, 1));
         TextView more = textButton("⋮", 28);
-        more.setOnClickListener(v -> showSpeedPanel());
+        more.setOnClickListener(v -> showPlayerOptions());
         topBar.addView(more, new LinearLayout.LayoutParams(dp(40), dp(48)));
         FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(-1, dp(64), Gravity.TOP);
         root.addView(topBar, p);
@@ -302,6 +306,41 @@ public class PlayerActivity extends AppCompatActivity {
         speed = value;
         speedLabel.setText(String.format(Locale.US, "%.2f×", speed));
         if (player != null) player.setPlaybackParameters(new PlaybackParameters(speed));
+    }
+
+    private void showPlayerOptions() {
+        String[] options = {"Playback speed", "Audio track", "Subtitles", "Fit screen", "Fill screen", "Zoom screen", "Shuffle: " + (shuffleEnabled ? "On" : "Off"), "Repeat: " + repeatLabel()};
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Player options")
+            .setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0: showSpeedPanel(); setControlsVisible(true); break;
+                    case 1: showTrackDialog(C.TRACK_TYPE_AUDIO, "Audio track"); break;
+                    case 2: showTrackDialog(C.TRACK_TYPE_TEXT, "Subtitles"); break;
+                    case 3: playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT); break;
+                    case 4: playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL); break;
+                    case 5: playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM); break;
+                    case 6: shuffleEnabled = !shuffleEnabled; if (player != null) player.setShuffleModeEnabled(shuffleEnabled); ToastMessage("Shuffle " + (shuffleEnabled ? "on" : "off")); break;
+                    case 7: repeatMode = repeatMode == Player.REPEAT_MODE_OFF ? Player.REPEAT_MODE_ALL : repeatMode == Player.REPEAT_MODE_ALL ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF; if (player != null) player.setRepeatMode(repeatMode); ToastMessage("Repeat " + repeatLabel()); break;
+                }
+                scheduleHide();
+            }).show();
+    }
+
+    private void showTrackDialog(int trackType, String label) {
+        if (player == null) return;
+        try {
+            new TrackSelectionDialogBuilder(this, label, player, trackType)
+                .setShowDisableOption(true)
+                .setAllowAdaptiveSelections(true)
+                .build().show();
+        } catch (Exception e) {
+            ToastMessage(label + " options are not available for this video");
+        }
+    }
+
+    private String repeatLabel() {
+        return repeatMode == Player.REPEAT_MODE_ONE ? "One" : repeatMode == Player.REPEAT_MODE_ALL ? "All" : "Off";
     }
 
     private void showSpeedPanel() {
