@@ -88,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         subtitle.setLetterSpacing(0.16f);
         brand.addView(title); brand.addView(subtitle);
         top.addView(brand,new LinearLayout.LayoutParams(0,-2,1));
+        Button musicBtn = makeButton("♫ Music");
+        musicBtn.setOnClickListener(v -> startActivity(new Intent(this, MusicActivity.class)));
+        top.addView(musicBtn,new LinearLayout.LayoutParams(-2,dp(48)));
 
         LinearLayout actions = new LinearLayout(this);
         actions.setOrientation(LinearLayout.VERTICAL);
