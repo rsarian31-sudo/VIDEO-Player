@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         root.setPadding(dp(16),dp(12),dp(16),0);
         root.setBackgroundColor(Color.BLACK);
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
-            android.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
+            androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.navigationBars());
             view.setPadding(dp(16), bars.top + dp(12), dp(16), bars.bottom);
             return insets;
         });
