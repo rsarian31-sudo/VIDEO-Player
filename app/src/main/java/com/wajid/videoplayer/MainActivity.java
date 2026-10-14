@@ -3,6 +3,7 @@ package com.wajid.videoplayer;
 import android.Manifest;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -263,11 +264,49 @@ public class MainActivity extends AppCompatActivity {
             TextView meta=text(item.folder+"  •  "+item.duration,11,MUTED,false); meta.setPadding(0,dp(5),0,0); details.addView(meta);
             row.addView(details,new LinearLayout.LayoutParams(0,-2,1));
             TextView more=text("⋮",24,MUTED,true); more.setPadding(dp(8),0,dp(2),0); row.addView(more);
+            more.setOnClickListener(v -> confirmDeleteVideo(item));
             row.setOnClickListener(v->{Intent i=new Intent(this,PlayerActivity.class);i.setData(item.uri);i.putExtra("title",item.name);
                 ArrayList<Uri> playlistUris=new ArrayList<>(); ArrayList<String> playlistTitles=new ArrayList<>(); int startIndex=0;
                 for(int idx=0;idx<filtered.size();idx++){VideoItem video=filtered.get(idx);playlistUris.add(video.uri);playlistTitles.add(video.name);if(video.uri.equals(item.uri))startIndex=idx;}
                 i.putParcelableArrayListExtra("playlist_uris",playlistUris);i.putStringArrayListExtra("playlist_titles",playlistTitles);i.putExtra("playlist_index",startIndex);startActivity(i);});
             addSpacedRow(row);
+        }
+    }
+
+    private void confirmDeleteVideo(VideoItem item) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete video?")
+            .setMessage("Delete \"" + item.name + "\" from your phone? This cannot be undone.")
+            .setNegativeButton("Cancel", (d,w) -> d.dismiss())
+            .setPositiveButton("Delete", (d,w) -> deleteVideo(item))
+            .show();
+    }
+
+    private void deleteVideo(VideoItem item) {
+        try {
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.app.PendingIntent request = MediaStore.createDeleteRequest(getContentResolver(), java.util.Collections.singletonList(item.uri));
+                startIntentSenderForResult(request.getIntentSender(), 4201, null, 0, 0, 0);
+            } else {
+                int deleted = getContentResolver().delete(item.uri, null, null);
+                if (deleted > 0) { loadVideos(); android.widget.Toast.makeText(this, "Video deleted", android.widget.Toast.LENGTH_SHORT).show(); }
+                else android.widget.Toast.makeText(this, "Could not delete this video", android.widget.Toast.LENGTH_LONG).show();
+            }
+        } catch (SecurityException e) {
+            if (Build.VERSION.SDK_INT >= 29 && e instanceof android.app.RecoverableSecurityException) {
+                try { startIntentSenderForResult(((android.app.RecoverableSecurityException)e).getUserAction().getActionIntent().getIntentSender(), 4201, null, 0, 0, 0); }
+                catch (Exception ignored) { android.widget.Toast.makeText(this, "Permission needed to delete this video", android.widget.Toast.LENGTH_LONG).show(); }
+            } else android.widget.Toast.makeText(this, "Permission needed to delete this video", android.widget.Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            android.widget.Toast.makeText(this, "Could not delete this video", android.widget.Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 4201 && resultCode == RESULT_OK) {
+            loadVideos();
+            android.widget.Toast.makeText(this, "Video deleted", android.widget.Toast.LENGTH_SHORT).show();
         }
     }
 
