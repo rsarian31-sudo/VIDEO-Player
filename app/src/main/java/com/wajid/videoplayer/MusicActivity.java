@@ -62,6 +62,10 @@ public class MusicActivity extends AppCompatActivity {
         String permission=Build.VERSION.SDK_INT>=33? "android.permission.READ_MEDIA_AUDIO":Manifest.permission.READ_EXTERNAL_STORAGE;
         if(ContextCompat.checkSelfPermission(this,permission)==PackageManager.PERMISSION_GRANTED)loadSongs();else permissionLauncher.launch(permission);
     }
+    @Override public void onBackPressed(){
+        if(folderFilter!=null){folderFilter=null;render();return;}
+        super.onBackPressed();
+    }
     private void connectAndPlay(ArrayList<Song> playlist,int index){
         Intent intent=new Intent(this,MusicPlayerActivity.class);
         ArrayList<Uri> uris=new ArrayList<>();
