@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <application android:allowBackup="false" android:label="Wajid Player" android:icon="@drawable/ic_wajid_player" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
+        <activity android:name=".MusicActivity" android:exported="false" />
+        <service android:name=".MusicPlaybackService" android:foregroundServiceType="mediaPlayback" android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
         <activity android:name=".PrivatePlayerActivity" android:exported="false" />
         <activity android:name=".PrivateActivity" android:exported="false" />
         <activity android:name=".PlayerActivity" android:screenOrientation="sensor" android:configChanges="orientation|screenSize|keyboardHidden" android:exported="false" />
