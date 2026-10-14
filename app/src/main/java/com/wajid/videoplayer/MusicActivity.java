@@ -21,6 +21,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.session.MediaController;
@@ -46,6 +48,7 @@ public class MusicActivity extends AppCompatActivity {
         super.onCreate(state);
         getWindow().setStatusBarColor(BG); getWindow().setNavigationBarColor(Color.BLACK);
         LinearLayout root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(dp(16),dp(12),dp(16),0); root.setBackgroundColor(BG);
+        ViewCompat.setOnApplyWindowInsetsListener(root,(view,insets)->{androidx.core.graphics.Insets bars=insets.getInsets(WindowInsetsCompat.Type.statusBars()|WindowInsetsCompat.Type.navigationBars());view.setPadding(dp(16),bars.top+dp(12),dp(16),bars.bottom);return insets;});
         LinearLayout top=new LinearLayout(this); top.setGravity(Gravity.CENTER_VERTICAL);
         TextView back=text("‹",34,Color.WHITE,false); back.setPadding(0,0,dp(16),0); back.setOnClickListener(v->finish()); top.addView(back);
         LinearLayout titleBox=new LinearLayout(this); titleBox.setOrientation(LinearLayout.VERTICAL);
