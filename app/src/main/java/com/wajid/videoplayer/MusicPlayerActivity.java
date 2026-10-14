@@ -32,6 +32,8 @@ public class MusicPlayerActivity extends AppCompatActivity {
     private TextView title, artist, playButton, position, duration;
     private SeekBar seek;
     private boolean userSeeking=false;
+    private boolean shuffleEnabled=false;
+    private int repeatMode=Player.REPEAT_MODE_OFF;
     private final Handler handler=new Handler(Looper.getMainLooper());
     private final Runnable ticker=new Runnable(){public void run(){refresh();handler.postDelayed(this,400);}};
     @Override protected void onCreate(Bundle b){
@@ -58,6 +60,12 @@ public class MusicPlayerActivity extends AppCompatActivity {
         position=txt("00:00",12,Color.WHITE,false);timeline.addView(position);
         seek=new SeekBar(this);seek.setMax(1000);seek.setProgressTintList(android.content.res.ColorStateList.valueOf(BLUE));seek.setThumbTintList(android.content.res.ColorStateList.valueOf(BLUE));timeline.addView(seek,new LinearLayout.LayoutParams(0,dp(36),1));
         duration=txt("00:00",12,0xFFB7BBC5,false);timeline.addView(duration);root.addView(timeline);
+        LinearLayout extraControls=new LinearLayout(this);extraControls.setGravity(Gravity.CENTER);
+        TextView shuffle=txt("⇄ Shuffle",13,0xFFB7BBC5,true);shuffle.setGravity(Gravity.CENTER);extraControls.addView(shuffle,new LinearLayout.LayoutParams(0,dp(40),1));
+        shuffle.setOnClickListener(v->{shuffleEnabled=!shuffleEnabled;if(controller!=null)controller.setShuffleModeEnabled(shuffleEnabled);shuffle.setTextColor(shuffleEnabled?BLUE:0xFFB7BBC5);});
+        TextView repeat=txt("↻ Repeat off",13,0xFFB7BBC5,true);repeat.setGravity(Gravity.CENTER);extraControls.addView(repeat,new LinearLayout.LayoutParams(0,dp(40),1));
+        repeat.setOnClickListener(v->{repeatMode=repeatMode==Player.REPEAT_MODE_OFF?Player.REPEAT_MODE_ALL:repeatMode==Player.REPEAT_MODE_ALL?Player.REPEAT_MODE_ONE:Player.REPEAT_MODE_OFF;if(controller!=null)controller.setRepeatMode(repeatMode);repeat.setText(repeatMode==Player.REPEAT_MODE_ONE?"↻ Repeat one":repeatMode==Player.REPEAT_MODE_ALL?"↻ Repeat all":"↻ Repeat off");repeat.setTextColor(repeatMode==Player.REPEAT_MODE_OFF?0xFFB7BBC5:BLUE);});
+        root.addView(extraControls);
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int p,boolean from){if(from)position.setText(clock(controller==null?0:(controller.getDuration()*p/1000)));}public void onStartTrackingTouch(SeekBar s){userSeeking=true;}public void onStopTrackingTouch(SeekBar s){if(controller!=null&&controller.getDuration()>0)controller.seekTo(controller.getDuration()*s.getProgress()/1000);userSeeking=false;}});
         LinearLayout controls=new LinearLayout(this);controls.setGravity(Gravity.CENTER);controls.setPadding(0,dp(12),0,dp(8));
         TextView prev=txt("⏮",31,Color.WHITE,true);prev.setGravity(Gravity.CENTER);controls.addView(prev,new LinearLayout.LayoutParams(0,dp(66),1));prev.setOnClickListener(v->{if(controller!=null)controller.seekToPreviousMediaItem();});
